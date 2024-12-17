@@ -101,7 +101,7 @@ class Weather:
         :param filters:
         :return:
         """
-        max_concurrent_requests = 5
+        max_concurrent_requests = int(getenv('concurrent_requests')) or 5
         semaphore = Semaphore(max_concurrent_requests)
 
         with ThreadPoolExecutor(max_workers=max_concurrent_requests) as executor:
