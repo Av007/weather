@@ -117,7 +117,7 @@ class Weather:
             final_df = concat(dataframes, ignore_index=True)
 
             if filters == 'max_temp':
-                final_df = final_df.sort_values(by='temperature_2m')
+                final_df = final_df.sort_values('temperature_2m', ascending = False)
             if filters == 'min_hum':
                 final_df = final_df.sort_values(by='relative_humidity_2m')
 
@@ -133,7 +133,7 @@ class Weather:
             final_df = final_df.rename(columns=new_column_names)
             final_df = final_df.reset_index(drop=True)
 
-            file = path.join('report', 'weather_data.csv')
+            file = path.join('report', getenv('filename'))
             final_df.to_csv(file, index=False)
 
             return final_df.to_dict()
