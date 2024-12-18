@@ -142,5 +142,5 @@ class Weather:
 
     def write_file(self, df):
         file = path.join('report', getenv('filename'))
-        final_df.to_csv(file, index=False)
+        df.to_csv(file, index=False)
 
