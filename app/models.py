@@ -1,5 +1,5 @@
 from os import getenv, path
-from threading import Semaphore
+from threading import Semaphore, Thread
 from concurrent.futures import ThreadPoolExecutor
 from pandas import DataFrame, concat
 from requests import get, exceptions
@@ -133,7 +133,14 @@ class Weather:
             final_df = final_df.rename(columns=new_column_names)
             final_df = final_df.reset_index(drop=True)
 
-            file = path.join('report', getenv('filename'))
-            final_df.to_csv(file, index=False)
+            # detached thread to write to file
+            thread = Thread(target=self.write_file, kwargs={'df': final_df})
+            thread.daemon = True
+            thread.start()
 
             return final_df.to_dict()
+
+    def write_file(self, df):
+        file = path.join('report', getenv('filename'))
+        final_df.to_csv(file, index=False)
+
