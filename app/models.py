@@ -1,7 +1,9 @@
 from os import getenv, path
 from threading import Semaphore, Thread
 from concurrent.futures import ThreadPoolExecutor
-from pandas import DataFrame, concat
+from matplotlib import pyplot as plt
+import matplotlib
+from pandas import DataFrame, concat, read_csv
 from requests import get, exceptions
 
 
@@ -113,34 +115,50 @@ class Weather:
             if df is not None:
                 dataframes.append(df)
 
-        if dataframes:
-            final_df = concat(dataframes, ignore_index=True)
+        if not dataframes:
+            return []
 
-            if filters == 'max_temp':
-                final_df = final_df.sort_values('temperature_2m', ascending = False)
-            if filters == 'min_hum':
-                final_df = final_df.sort_values(by='relative_humidity_2m')
+        final_df = concat(dataframes, ignore_index=True)
 
-            new_column_names = {
-                'temperature_2m': 'Temperature\n(C)',
-                'relative_humidity_2m': 'Humidity(%)',
-                'wind_speed_10m': 'Wind Speed\n(m/s)',
-                'temperature_2m_f': 'Temperature\n(F)',
-                'wind_speed_10m_mph': 'Wind Speed\n(mph)',
-                'city': 'City',
-            }
+        if filters == 'max_temp':
+            final_df = final_df.sort_values('temperature_2m', ascending = False)
+        if filters == 'min_hum':
+            final_df = final_df.sort_values(by='relative_humidity_2m')
 
-            final_df = final_df.rename(columns=new_column_names)
-            final_df = final_df.reset_index(drop=True)
+        new_column_names = {
+            'temperature_2m': 'Temperature\n(C)',
+            'relative_humidity_2m': 'Humidity(%)',
+            'wind_speed_10m': 'Wind Speed\n(m/s)',
+            'temperature_2m_f': 'Temperature\n(F)',
+            'wind_speed_10m_mph': 'Wind Speed\n(mph)',
+            'city': 'City',
+        }
 
-            # detached thread to write to file
-            thread = Thread(target=self.write_file, kwargs={'df': final_df})
-            thread.daemon = True
-            thread.start()
+        final_df = final_df.rename(columns=new_column_names)
+        final_df = final_df.reset_index(drop=True)
 
-            return final_df.to_dict()
+        # detached thread to write to file
+        thread = Thread(target=self.write_file, kwargs={'df': final_df})
+        thread.daemon = True
+        thread.start()
+
+        return final_df.to_dict()
 
     def write_file(self, df):
-        file = path.join('report', getenv('filename'))
+        file = self.file_name()
         df.to_csv(file, index=False)
 
+    def get_image_graph(self):
+        matplotlib.use('Agg')
+        df = read_csv(self.file_name())
+
+        fig, ax = plt.subplots()
+        ax.barh(df.iloc[:, 0], df.iloc[:, 1], color='coral')
+        ax.set_title('Temperature')
+        ax.set_xlabel('Cities')
+        ax.set_ylabel('temp')
+
+        return fig
+
+    def file_name(self):
+        return path.join('report', getenv('filename'))

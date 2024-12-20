@@ -16,6 +16,7 @@
   </form>
 
   <table id="data-table"></table>
+  <div id="graph"></div>
 {% endblock %}
 
 {% block js %}
@@ -88,6 +89,17 @@
         }
 
         table.appendChild(tbody);
+        graph(); // display graph
+    }
+
+
+    function graph() {
+      fetch(`/graph`)
+              .then(response => response.text())
+              .then(svg => {
+                document.getElementById("graph").innerHTML = svg;
+              })
+              .catch(error => console.error('Error fetching svg:', error));
     }
   </script>
 {% endblock %}
