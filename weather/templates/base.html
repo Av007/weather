@@ -7,9 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{% block title %}{% endblock %} - Weather</title>
     <style>
-       svg {
+      .left {
+        float: right;
+      }
+      svg {
         width: 100%;
-       }
+      }
 
       table {
             width: 100%;
@@ -35,9 +38,6 @@
     </style>
 </head>
 <body>
-  <nav>
-    <h1>Weather</h1>
-  </nav>
     <section class="content">
       <header>
         {% block header %}{% endblock %}
@@ -46,7 +46,7 @@
         <div class="flash">{{ message }}</div>
       {% endfor %}
       {% block content %}{% endblock %}
-  </section>
-  {% block js %}{% endblock %}
+    </section>
+    {% block js %}{% endblock %}
 </body>
 </html>

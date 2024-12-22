@@ -1,0 +1,103 @@
+{% extends 'base.html' %} 
+
+{% block header %}
+<h1>{% block title %}Weather{% endblock %}</h1>
+{% endblock %} 
+
+{% block content %}
+<a class="left" href="{{ url_for('main.download_file') }}">Download file</a>
+<form method="post" id="form">
+  <label for="sorting">Sorting</label>
+  <select name="sorting" id="sorting">
+    <option>No sorting</option>
+    <option value="max_temp">By hight temperature</option>
+    <option value="min_hum">By low humidity</option>
+  </select>
+  <input type="submit" id="submit" />
+</form>
+
+<table id="data-table"></table>
+<div id="graph"></div>
+{% endblock %} {% block js %}
+<script>
+  function send(filters = "") {
+    let params = "";
+    if (filters) {
+      params = new URLSearchParams({
+        filters,
+      });
+    }
+
+    fetch(`/api/weather?${params.toString()}`)
+      .then((response) => response.json())
+      .then((data) => {
+        const { data: tableData } = data;
+
+        generateTable(tableData);
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    send();
+  });
+
+  document.getElementById("form").addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const sorting = document.getElementById("sorting").value;
+    send(sorting);
+  });
+
+  function generateTable(weatherData) {
+    const table = document.getElementById("data-table");
+    table.innerHTML = "";
+
+    if (!weatherData) {
+      table.innerHTML = "<tr><td>No data available</td></tr>";
+      return;
+    }
+
+    const rowsCount = Object.keys(Object.values(weatherData)[0]).length;
+
+    const headers = Object.keys(weatherData);
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+
+    headers.forEach((header) => {
+      const th = document.createElement("th");
+      th.textContent = header;
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+
+    for (let i = 0; i < rowsCount; i++) {
+      const tr = document.createElement("tr");
+
+      headers.forEach((header) => {
+        const td = document.createElement("td");
+
+        td.textContent = weatherData[header][i] || "";
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    }
+
+    table.appendChild(tbody);
+    graph();
+  }
+
+  function graph() {
+    fetch(`/graph`)
+      .then((response) => response.text())
+      .then((svg) => {
+        document.getElementById("graph").innerHTML = svg;
+      })
+      .catch((error) => console.error("Error fetching svg:", error));
+  }
+</script>
+{% endblock %}

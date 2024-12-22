@@ -24,12 +24,13 @@ source venv/bin/activate
 ```
 b. Install dependencies:
 ```
-pip install -r requirements.txt
+pip install -e .
 ```
 4. **Run the project**
 
 ```
-flask --app app run --debug
+flask cache-init # will work without this commend
+flask run
 ``` 
 
 5. **See results**
