@@ -29,7 +29,7 @@ pip install -e .
 4. **Run the project**
 
 ```
-flask cache-init # will work without this commend
+flask cache-init # will work without this command
 flask run
 ``` 
 
