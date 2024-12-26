@@ -6,6 +6,7 @@ main_blueprint = Blueprint('main', __name__)
 
 weather = Weather()
 
+
 @main_blueprint.route('/', methods=['GET'])
 def index():
     """

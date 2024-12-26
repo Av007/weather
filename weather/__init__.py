@@ -28,8 +28,8 @@ def create_app():
 
     @app.cli.command('cache-init')
     def cache_init():
-        cities = Cities(['Paris'])
-        cities.get_cities_coord()
+        cities_service = Cities(['Paris'])
+        cities_service.get_cities_coord()
         click.secho('Successfully writing cache', fg='green', bold=True)
 
     return app
